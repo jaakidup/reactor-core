@@ -1,0 +1,25 @@
+http://localhost:8081/users
+
+
+###
+POST http://localhost:8081/users HTTP/1.1
+Content-Type: : application/json
+
+{
+    "name": "Jaaki",
+    "surname": "Dup",
+    "age": 38    
+}
+###
+GET http://localhost:8081/users/0f840f42-7bab-bf28-b8c5-8653c4e5bd10
+
+
+###
+PATCH http://localhost:8081/users HTTP/1.1
+Content-Type: : application/json
+
+{
+    "name": "Jaaki",
+    "surname": "Dup",
+    "age": 38    
+}
