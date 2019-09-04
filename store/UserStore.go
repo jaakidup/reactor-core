@@ -7,7 +7,7 @@ import (
 	"log"
 
 	"github.com/boltdb/bolt"
-	"github.com/jaakidup/project/model"
+	"github.com/jaakidup/reactor-core/model"
 )
 
 func init() {

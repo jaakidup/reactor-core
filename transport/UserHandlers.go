@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi"
-	"github.com/jaakidup/project/model"
+	"github.com/jaakidup/reactor-core/model"
 )
 
 func getUserByID(w http.ResponseWriter, r *http.Request) {

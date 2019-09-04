@@ -3,8 +3,8 @@ package service
 import (
 	"fmt"
 
-	"github.com/jaakidup/project/model"
-	"github.com/jaakidup/project/store"
+	"github.com/jaakidup/reactor-core/model"
+	"github.com/jaakidup/reactor-core/store"
 )
 
 func init() {

@@ -7,7 +7,7 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
-	"github.com/jaakidup/project/service"
+	"github.com/jaakidup/reactor-core/service"
 )
 
 // Service ...

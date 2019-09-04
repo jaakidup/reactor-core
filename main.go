@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"github.com/jaakidup/project/transport"
+	"github.com/jaakidup/reactor-core/transport"
 )
 
 func main() {

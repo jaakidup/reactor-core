@@ -1,7 +1,7 @@
 package service
 
 import (
-	"github.com/jaakidup/project/store"
+	"github.com/jaakidup/reactor-core/store"
 )
 
 // CreateService ...
