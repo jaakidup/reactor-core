@@ -30,14 +30,14 @@ func getAllUsers(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(users)
 }
 
-func createUser(w http.ResponseWriter, r *http.Request) {
+func updateUser(w http.ResponseWriter, r *http.Request) {
 	user := model.User{}
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	id, err := Service.User.CreateUser(user)
+	id, err := Service.User.UpdateUser(user)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return

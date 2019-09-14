@@ -16,12 +16,12 @@ type UserService struct {
 	Store *store.Store
 }
 
-// CreateUser ...
+// UpdateUser ...
 // @user model.User
 // @return error
-func (us UserService) CreateUser(user model.User) (string, error) {
+func (us UserService) UpdateUser(user model.User) (string, error) {
 
-	id, err := us.Store.User.Save(user)
+	id, err := us.Store.User.Update(user)
 	if err != nil {
 		return "", err
 	}

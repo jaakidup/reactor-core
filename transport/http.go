@@ -43,7 +43,7 @@ func (ws *WebServer) Serve() {
 	r.Use(middleware.Timeout(60 * time.Second))
 
 	r.Route("/users", func(r chi.Router) {
-		r.Post("/", createUser)     // POST /users
+		r.Post("/", updateUser)     // POST /users
 		r.Get("/", getAllUsers)     // GET /users
 		r.Get("/{id}", getUserByID) // GET /users/ouqw-423452345-asdfasfda
 	})

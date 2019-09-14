@@ -11,15 +11,6 @@ Content-Type: : application/json
     "age": 38    
 }
 ###
-GET http://localhost:8081/users/0f840f42-7bab-bf28-b8c5-8653c4e5bd10
+GET http://localhost:8081/users/b2f617e2-348a-892f-40f9-c2c1fd1edf89
 
 
-###
-PATCH http://localhost:8081/users HTTP/1.1
-Content-Type: : application/json
-
-{
-    "name": "Jaaki",
-    "surname": "Dup",
-    "age": 38    
-}

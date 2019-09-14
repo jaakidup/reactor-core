@@ -1,7 +1,6 @@
 package store
 
 import (
-	"crypto/rand"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -10,85 +9,95 @@ import (
 	"github.com/jaakidup/reactor-core/model"
 )
 
-func init() {
-	fmt.Println("UserStore init")
+var updateUserChan chan model.User
+var db = openDB()
+var dbBucket = dbBucketName()
+
+func dbBucketName() []byte {
+	return []byte("Users")
 }
 
-// MakeUserStore ...
-func MakeUserStore() *UserStore {
-
+func openDB() *bolt.DB {
 	db, err := bolt.Open("./db/users.db", 0600, nil)
 	if err != nil {
 		log.Fatalln("Couldn't open Bolt")
 	}
+
 	err = db.Update(func(tx *bolt.Tx) error {
-		_, err := tx.CreateBucketIfNotExists([]byte("Users"))
+		_, err := tx.CreateBucketIfNotExists(dbBucket)
 		if err != nil {
 			return fmt.Errorf("could not create root bucket: %v", err)
 		}
-		// _, err = root.CreateBucketIfNotExists([]byte("WEIGHT"))
-		// if err != nil {
-		// return fmt.Errorf("could not create weight bucket: %v", err)
-		// }
-		// _, err = root.CreateBucketIfNotExists([]byte("ENTRIES"))
-		// if err != nil {
-		// return fmt.Errorf("could not create days bucket: %v", err)
-		// }
 		return nil
 	})
 	if err != nil {
 		fmt.Println("Couldn't set up the Buckets")
 	}
 
-	return &UserStore{db: db}
+	return db
 }
 
-// MakeUUID ...
-func MakeUUID() string {
-	b := make([]byte, 16)
-	_, err := rand.Read(b)
-	if err != nil {
-		log.Fatal(err)
-	}
-	uuid := fmt.Sprintf("%x-%x-%x-%x-%x",
-		b[0:4], b[4:6], b[6:8], b[8:10], b[10:])
-	fmt.Println(uuid)
-	return uuid
+func init() {
+	fmt.Println("UserStore init")
+
+	updateUserChan = make(chan model.User)
+
+	go func() {
+		for {
+			user := <-updateUserChan
+			marshalledUser, err := json.Marshal(user)
+			if err != nil {
+				log.Println("Failed Marshalling user for saving in DB")
+			}
+
+			err = db.Update(func(tx *bolt.Tx) error {
+				b := tx.Bucket(dbBucket)
+				err := b.Put([]byte(user.ID), marshalledUser)
+				return err
+			})
+			if err != nil {
+				log.Println("Failed saving user with ID: ", user.ID)
+				log.Println("Handle this with notification to admin")
+			}
+
+		}
+	}()
+
+	fmt.Println("User Write Instance started")
+}
+
+// MakeUserStore ...
+func MakeUserStore() *UserStore {
+	return &UserStore{}
 }
 
 // UserStore ...
 type UserStore struct {
-	db *bolt.DB
 }
 
-// Save ...
-func (us UserStore) Save(user model.User) (string, error) {
+// Update ...
+func (UserStore) Update(user model.User) (string, error) {
 	log.Println("Storing User", user)
 
-	user.ID = MakeUUID()
-	marshalledUser, err := json.Marshal(user)
-	if err != nil {
-		return "", err
+	if user.ID == "" {
+		log.Println("User doesn't have an ID, so let's create one.")
+		user.ID = GenerateUUID()
+		log.Println("Generating new UUID")
 	}
 
-	err = us.db.Update(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte("Users"))
-		err := b.Put([]byte(user.ID), marshalledUser)
-		return err
-	})
-	if err != nil {
-		return "nil", err
-	}
+	// updateUserChan takes a user in a separate goroutine
+	// as it only allows a single write instance
+	updateUserChan <- user
 
 	return string(user.ID), nil
 }
 
 // Get ...
-func (us UserStore) Get(id string) (model.User, error) {
+func (UserStore) Get(id string) (model.User, error) {
 	user := model.User{}
 
-	err := us.db.View(func(tx *bolt.Tx) error {
-		userdata := tx.Bucket([]byte("Users")).Get([]byte(id))
+	err := db.View(func(tx *bolt.Tx) error {
+		userdata := tx.Bucket(dbBucket).Get([]byte(id))
 		json.Unmarshal(userdata, &user)
 		return nil
 	})
@@ -100,11 +109,11 @@ func (us UserStore) Get(id string) (model.User, error) {
 }
 
 // GetAll ...
-func (us UserStore) GetAll() ([]model.User, error) {
+func (UserStore) GetAll() ([]model.User, error) {
 	users := []model.User{}
 
-	err := us.db.View(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte("Users"))
+	err := db.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket(dbBucket)
 		b.ForEach(func(k, v []byte) error {
 			// fmt.Println(string(k), string(v))
 			user := model.User{}

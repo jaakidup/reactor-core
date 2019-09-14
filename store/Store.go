@@ -13,6 +13,5 @@ func CreateStore() *Store {
 
 // Store ...
 type Store struct {
-	StoreType string
-	User      *UserStore
+	User *UserStore
 }
