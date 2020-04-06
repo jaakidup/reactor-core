@@ -1,8 +1,6 @@
 package main
 
 import (
-	"log"
-
 	"github.com/jaakidup/reactor-core/transport"
 )
 
